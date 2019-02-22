@@ -145,7 +145,7 @@ def run():
 
     # Update last_week file
     logging.info('Updating last_week file')
-    file = open('last_week', 'w')
+    file = open('./HallBot/last_week', 'w')
     file.write(date.strftime("%Y, %m, %d"))
     file.close()
 
