@@ -88,7 +88,7 @@ def generate_email_body(name, interesting_days):
         msg = msg + "According to your desires, you may like the following:<br><br>"
 
         for day in interesting_days:
-            msg = msg + '<b>' + day['date'] + '</b><br>'
+            msg = msg + '<h3>' + day['date'] + '</h3>'
             menu = day['menu']
             for course, dish in menu.items():
                 if course.lower() in day['courses_of_interest']:
