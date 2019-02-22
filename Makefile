@@ -8,3 +8,6 @@ clean:
 	rm -rf venv
 	find . -iname "*.egg-info" -type d -exec rm -rf {} +
 	find . -iname "*.pyc" -delete
+
+deploy: users.json keys.yaml
+	scp $^ tal42@linux.cl.ds.cam.ac.uk:~/HallBot
