@@ -72,6 +72,9 @@ def find_interesting_days(menu, desires):
             if (any([all([word in v.lower() for word in full.split()])for full in desires])):
                 if len(interesting_days) == 0 or interesting_days[-1]['date'] != day['date']:
                     interesting_days.append(day)
+                    interesting_days[-1]['courses_of_interest'] = [c.lower()]
+                elif len(interesting_days) > 0 and interesting_days[-1]['date'] != day['date']:
+                    interesting_days[-1]['courses_of_interest'].append(c.lower())
 
     return interesting_days
 
@@ -88,7 +91,10 @@ def generate_email_body(name, interesting_days):
             msg = msg + '<b>' + day['date'] + '</b><br>'
             menu = day['menu']
             for course, dish in menu.items():
-                msg = msg + '<i>' + course + '</i>: ' + dish + '<br>'
+                if course.lower() in day['courses_of_interest']:
+                    msg = msg + '<b><i>' + course + '</i>: ' + dish + '</b><br>'
+                else:
+                    msg = msg + '<i>' + course + '</i>: ' + dish + '<br>'
 
             msg = msg + '<br>'
 
