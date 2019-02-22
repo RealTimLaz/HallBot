@@ -73,7 +73,7 @@ def find_interesting_days(menu, desires):
                 if len(interesting_days) == 0 or interesting_days[-1]['date'] != day['date']:
                     interesting_days.append(day)
                     interesting_days[-1]['courses_of_interest'] = [c.lower()]
-                elif len(interesting_days) > 0 and interesting_days[-1]['date'] != day['date']:
+                elif len(interesting_days) > 0 and interesting_days[-1]['date'] == day['date']:
                     interesting_days[-1]['courses_of_interest'].append(c.lower())
 
     return interesting_days
