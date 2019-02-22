@@ -8,17 +8,19 @@ from bs4 import BeautifulSoup
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+
 def get_next_week():
     last_successful_date = open('./last_week').read()
     year, month, date = (int(x) for x in last_successful_date.split(', '))
     date = datetime(year, month, date)
     return date + timedelta(days=7)
 
+
 def get_menu(date=datetime.now(), week_offset=0):
-    '''
-    Gets the menu for the week of the specified date plus the offset.
+    """ Gets the menu for the week of the specified date plus the offset.
     Returns None if the menu isn't there
-    '''
+    """
+
     # Work out the URL to scrape
     w = date.strftime('%w')
     date = date - timedelta(days=int(w))
@@ -60,6 +62,7 @@ def get_menu(date=datetime.now(), week_offset=0):
 
     return data, date
 
+
 def find_interesting_days(menu, desires):
     interesting_days = []
     for day in menu:
@@ -69,6 +72,7 @@ def find_interesting_days(menu, desires):
                     interesting_days.append(day)
 
     return interesting_days
+
 
 def generate_email_body(name, interesting_days):
     msg = 'Hi ' + name + ',<br><br>'
@@ -89,6 +93,7 @@ def generate_email_body(name, interesting_days):
 
     msg = msg + 'Yours sincerely,<br>HallBot'
     return msg
+
 
 def send_email(interesting_days, destination, name):
     with open("keys.yaml", 'r') as stream:
@@ -111,16 +116,22 @@ def send_email(interesting_days, destination, name):
         server.sendmail(fromaddr, toaddr, text)
         server.quit()
 
-menu, date = get_menu(date=get_next_week())
 
-json_data=open('./users.json').read()
-users = json.loads(json_data)
+def run():
+    menu, date = get_menu(date=get_next_week())
 
-for u in users:
-    i_d = find_interesting_days(menu, u['desires'])
-    send_email(i_d, u['email'], u['name'])
+    json_data = open('./users.json').read()
+    users = json.loads(json_data)
 
-# Update last_week file
-file = open('last_week', 'w')
-file.write(date.strftime("%Y, %m, %d"))
-file.close()
+    for u in users:
+        i_d = find_interesting_days(menu, u['desires'])
+        send_email(i_d, u['email'], u['name'])
+
+    # Update last_week file
+    file = open('last_week', 'w')
+    file.write(date.strftime("%Y, %m, %d"))
+    file.close()
+
+
+if __name__ == "__main__":
+    run()
