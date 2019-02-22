@@ -2,6 +2,8 @@ import requests
 import smtplib
 import json
 import yaml
+import logging
+import os
 from datetime import datetime
 from datetime import timedelta
 from bs4 import BeautifulSoup
@@ -10,7 +12,7 @@ from email.mime.text import MIMEText
 
 
 def get_next_week():
-    last_successful_date = open('./last_week').read()
+    last_successful_date = open('./HallBot/last_week').read()
     year, month, date = (int(x) for x in last_successful_date.split(', '))
     date = datetime(year, month, date)
     return date + timedelta(days=7)
@@ -37,7 +39,7 @@ def get_menu(date=datetime.now(), week_offset=0):
 
     # Check to see if the menu has been uploaded yet
     if menu_table is None:
-        return None
+        return None, date
 
     menu_table = menu_table.find('tbody')
     rows = menu_table.find_all('tr')
@@ -96,7 +98,7 @@ def generate_email_body(name, interesting_days):
 
 
 def send_email(interesting_days, destination, name):
-    with open("keys.yaml", 'r') as stream:
+    with open("./HallBot/keys.yaml", 'r') as stream:
         key_data = yaml.load(stream)
 
         fromaddr = key_data['email_address']
@@ -118,16 +120,25 @@ def send_email(interesting_days, destination, name):
 
 
 def run():
+    os.chdir(os.path.expanduser('~'))
+    logging.basicConfig(filename='./HallBot/main.log',filemode='a', level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     menu, date = get_menu(date=get_next_week())
+    if menu is None:
+        logging.info('No menu for the next week was found')
+        return
 
-    json_data = open('./users.json').read()
+    logging.info('Found menu')
+    json_data = open('./HallBot/users.json').read()
     users = json.loads(json_data)
 
     for u in users:
+        logging.info('Finding interesting days for {}'.format(u['name']))
         i_d = find_interesting_days(menu, u['desires'])
+        logging.info('Sending email to {}'.format(u['email']))
         send_email(i_d, u['email'], u['name'])
 
     # Update last_week file
+    logging.info('Updating last_week file')
     file = open('last_week', 'w')
     file.write(date.strftime("%Y, %m, %d"))
     file.close()
