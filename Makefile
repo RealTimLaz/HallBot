@@ -10,4 +10,4 @@ clean:
 	find . -iname "*.pyc" -delete
 
 deploy: users_prod.json
-	scp $^ tal42@linux.cl.ds.cam.ac.uk:~/HallBot/users.json
+	scp $^ tal42@shell.srcf.net:~/HallBot/users.json
