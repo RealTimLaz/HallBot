@@ -24,12 +24,13 @@ def get_menu(date=datetime.now(), week_offset=0):
     """
 
     # Work out the URL to scrape
+    # TODO: scrape all known URLs
     w = date.strftime('%w')
     date = date - timedelta(days=int(w))
     date = date + timedelta(weeks=week_offset)
-    url_date = date.strftime('%d-%b').lower()
+    url_date = date.strftime('%d-%B').lower()
 
-    url = 'http://intranet.joh.cam.ac.uk/hall-menu-' + url_date
+    url = 'http://intranet.joh.cam.ac.uk/hall-menu-wc-' + url_date
 
     request = requests.get(url)
 
@@ -57,8 +58,15 @@ def get_menu(date=datetime.now(), week_offset=0):
         # Get the menu from each row of the table
         courses = cols[1].find_all('p')
         courses = list(filter(lambda x: len(x) > 0, map(lambda x : x.get_text(strip=True), courses)))
-        courses[1] = courses[1].replace('Vegetarian:', '')
-        menu = {'Starter': courses[0], 'Vegetarian': courses[1], 'Main': courses[2], 'Sides': courses[3], 'Dessert': courses[4]}
+        for i in range(len(courses)):
+            if courses[i].startswith('Vegetarian:'):
+                break
+        courses[i] = courses[i].replace('Vegetarian:', '')
+        menu = {'Starter_' + str(j): courses[j] for j in range(i)}
+        menu['Vegetarian'] = courses[i]
+        menu['Main'] = courses[i + 1]
+        menu['Sides'] = courses[i + 2]
+        menu['Dessert'] = courses[i + 3]
         current_row['menu'] = menu
         data.append(current_row)
 
@@ -91,10 +99,11 @@ def generate_email_body(name, interesting_days):
             msg = msg + '<h3>' + day['date'] + '</h3>'
             menu = day['menu']
             for course, dish in menu.items():
+
                 if course.lower() in day['courses_of_interest']:
-                    msg = msg + '<b><i>' + course + '</i>: ' + dish + '</b><br>'
+                    msg = msg + '<b><i>' + course.split('_')[0] + '</i>: ' + dish + '</b><br>'
                 else:
-                    msg = msg + '<i>' + course + '</i>: ' + dish + '<br>'
+                    msg = msg + '<i>' + course.split('_')[0] + '</i>: ' + dish + '<br>'
 
             msg = msg + '<br>'
 
