@@ -19,19 +19,18 @@ def get_next_week():
     return date + timedelta(days=7)
 
 
-def get_menu(date=datetime.now(), week_offset=0):
+def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
     """ Gets the menu for the week of the specified date plus the offset.
     Returns None if the menu isn't there
     """
 
     # Work out the URL to scrape
-    # TODO: scrape all known URLs
     w = date.strftime('%w')
     date = date - timedelta(days=int(w))
     date = date + timedelta(weeks=week_offset)
-    url_date = date.strftime('%d-%B').lower()
+    url_date = date.strftime(url_format).lower()
 
-    url = 'http://intranet.joh.cam.ac.uk/hall-menu-wc-' + url_date
+    url = 'http://intranet.joh.cam.ac.uk/hall-menu-' + url_date
 
     request = requests.get(url)
 
@@ -139,8 +138,13 @@ def send_email(interesting_days, destination, name):
 def run():
     os.chdir(os.path.expanduser('~'))
     logging.basicConfig(filename='./HallBot/main.log',filemode='a', level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-    menu, date = get_menu(date=get_next_week())
-    if menu is None:
+    menu = None
+
+    for format in ['wc-%d-%B', '%d-%b']:
+         menu, date = get_menu(date=get_next_week(), url_format=format)
+         if menu is not None:
+             break
+    else:
         logging.info('No menu for the next week was found')
         return
 
