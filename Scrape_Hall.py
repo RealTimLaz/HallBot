@@ -4,6 +4,7 @@ import json
 import yaml
 import logging
 import os
+from collections import OrderedDict
 from datetime import datetime
 from datetime import timedelta
 from bs4 import BeautifulSoup
@@ -63,6 +64,7 @@ def get_menu(date=datetime.now(), week_offset=0):
                 break
         courses[i] = courses[i].replace('Vegetarian:', '')
         menu = {'Starter_' + str(j): courses[j] for j in range(i)}
+        menu = OrderedDict(sorted(menu.items(), key=lambda t :t[0]))
         menu['Vegetarian'] = courses[i]
         menu['Main'] = courses[i + 1]
         menu['Sides'] = courses[i + 2]
