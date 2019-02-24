@@ -19,7 +19,7 @@ def get_next_week():
 def get_menu(date=datetime.now(), week_offset=0):
     """ Gets the menu for the week of the specified date plus the offset.
     Returns None if the menu isn't there
-    """
+    """ 
 
     # Work out the URL to scrape
     w = date.strftime('%w')
@@ -63,13 +63,20 @@ def get_menu(date=datetime.now(), week_offset=0):
     return data, date
 
 
-def find_interesting_days(menu, desires):
+def value_in_any_of(value, list_to_check):
+    return any([all([word in value.lower() for word in full.split()]) for full in list_to_check])
+
+
+def find_interesting_days(menu, desires, disgusts):
     interesting_days = []
     for day in menu:
         for c, v in day['menu'].items():
-            if (any([all([word in v.lower() for word in full.split()])for full in desires])):
-                if len(interesting_days) == 0 or interesting_days[-1]['date'] != day['date']:
-                    interesting_days.append(day)
+            # Check if the the day has any desired menu items
+            if value_in_any_of(v, desires):
+                # Check that the day does not contain any disgusts
+                if disgusts is not None and not value_in_any_of(v, disgusts):
+                    if len(interesting_days) == 0 or interesting_days[-1]['date'] != day['date']:
+                        interesting_days.append(day)
 
     return interesting_days
 
@@ -89,7 +96,6 @@ def generate_email_body(name, interesting_days):
                 msg = msg + '<i>' + course + '</i>: ' + dish + '<br>'
 
             msg = msg + '<br>'
-
 
     msg = msg + 'Yours sincerely,<br>HallBot'
     return msg
@@ -124,7 +130,7 @@ def run():
     users = json.loads(json_data)
 
     for u in users:
-        i_d = find_interesting_days(menu, u['desires'])
+        i_d = find_interesting_days(menu, u['desires'], u['disgusts'])
         send_email(i_d, u['email'], u['name'])
 
     # Update last_week file
