@@ -19,7 +19,7 @@ def get_next_week():
 def get_menu(date=datetime.now(), week_offset=0):
     """ Gets the menu for the week of the specified date plus the offset.
     Returns None if the menu isn't there
-    """ 
+    """
 
     # Work out the URL to scrape
     w = date.strftime('%w')
