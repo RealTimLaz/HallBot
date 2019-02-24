@@ -1,4 +1,7 @@
 keys.yaml
 users.json
+users_prod.json
 last_week
+main.log
 venv/
+.idea/
