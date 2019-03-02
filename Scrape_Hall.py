@@ -86,7 +86,7 @@ def find_interesting_days(menu, desires, disgusts):
             # Check if the the day has any desired menu items
             if value_in_any_of(v, desires):
                 # Check that the day does not contain any disgusts
-                if disgusts is not None and not value_in_any_of(v, disgusts):
+                if disgusts is None or not value_in_any_of(v, disgusts):
                     if len(interesting_days) == 0 or interesting_days[-1]['date'] != day['date']:
                         interesting_days.append(day)
                         interesting_days[-1]['courses_of_interest'] = [c.lower()]
@@ -163,7 +163,11 @@ def run():
 
     for u in users:
         logging.info('Finding interesting days for {}'.format(u['name']))
-        i_d = find_interesting_days(menu, u['desires'], u['disgusts'])
+        if 'disgusts' in u:
+            disgusts = u['disgusts']
+        else:
+            disgusts = None
+        i_d = find_interesting_days(menu, u['desires'], disgusts)
         logging.info('Sending email to {}'.format(u['email']))
         send_email(i_d, u['email'], u['name'])
 
