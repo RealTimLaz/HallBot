@@ -149,7 +149,7 @@ def run():
     logging.basicConfig(filename='./HallBot/main.log',filemode='a', level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     menu = None
 
-    for format in ['wc-%d-%B', '%d-%b', '%d-%B']:
+    for format in ['wc-%d-%B', '%d-%b', '%d-%B', '%-d-%B', '%-d-%b', 'wc-%-d-%B']:
          menu, date = get_menu(date=get_next_week(), url_format=format)
          if menu is not None:
              break
