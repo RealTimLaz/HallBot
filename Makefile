@@ -11,3 +11,4 @@ clean:
 
 deploy: users_prod.json
 	scp $^ tal42@shell.srcf.net:~/HallBot/users.json
+	ssh tal42@shell.srcf.net 'cd HallBot && git pull'
