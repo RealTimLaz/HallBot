@@ -4,6 +4,8 @@ import json
 import yaml
 import logging
 import os
+import argparse
+import sys
 from collections import OrderedDict
 from datetime import datetime
 from datetime import timedelta
@@ -17,6 +19,7 @@ def get_next_week():
     year, month, date = (int(x) for x in last_successful_date.split(', '))
     date = datetime(year, month, date)
     return date + timedelta(days=7)
+
 
 
 def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
@@ -145,14 +148,30 @@ def send_email(interesting_days, destination, name):
 
 
 def run():
+    parser = argparse.ArgumentParser(description='Run the hallbot script to get the latest hall menu')
+    parser.add_argument("-d", "--debug", help="Run HallBot in debug mode",
+                    action="store_true")
+
+    args = parser.parse_args()
+    debug = args.debug
+
     os.chdir(os.path.expanduser('~'))
-    logging.basicConfig(filename='./HallBot/main.log',filemode='a', level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    if debug:
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format='%(levelname)s: %(message)s')
+    else:
+        logging.basicConfig(filename='./HallBot/main.log',filemode='a', level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
     menu = None
 
     for format in ['wc-%d-%B', '%d-%b', '%d-%B', '%-d-%B', '%-d-%b', 'wc-%-d-%B']:
-         menu, date = get_menu(date=get_next_week(), url_format=format)
-         if menu is not None:
-             break
+        date_to_look = get_next_week()
+        if debug:
+            date_to_look = datetime.now()
+        menu, date = get_menu(date=date_to_look, url_format=format)
+        if debug and menu is None:
+            menu, date = get_menu(date=date_to_look, url_format=format, week_offset=1)
+        if menu is not None:
+            break
     else:
         logging.info('No menu for the next week was found')
         return
