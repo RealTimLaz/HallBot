@@ -57,6 +57,7 @@ def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
 
         # Get the menu from each row of the table
         courses = cols[1].find_all('p')
+        # TODO: remove/add back in bold text
         courses = list(filter(lambda x: len(x) > 0, map(lambda x : x.get_text(strip=True), courses)))
         for i in range(len(courses)):
             if courses[i].startswith('Vegetarian:'):
@@ -140,7 +141,7 @@ def run():
     logging.basicConfig(filename='./HallBot/main.log',filemode='a', level=logging.DEBUG, format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     menu = None
 
-    for format in ['wc-%d-%B', '%d-%b']:
+    for format in ['wc-%d-%B', '%d-%b', '%d-%B']:
          menu, date = get_menu(date=get_next_week(), url_format=format)
          if menu is not None:
              break
