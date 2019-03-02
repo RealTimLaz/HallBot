@@ -72,6 +72,15 @@ def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
         menu['Main'] = courses[i + 1]
         menu['Sides'] = courses[i + 2]
         menu['Dessert'] = courses[i + 3]
+
+        for course in menu.keys():
+            description = menu[course]
+            for i, c in enumerate(description):
+                if c.isupper() and i > 0 and description[i-1].islower():
+                    description = description[:i]
+                    menu[course] = description
+                    break
+
         current_row['menu'] = menu
         data.append(current_row)
 
