@@ -34,7 +34,7 @@ def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
     url_date = date.strftime(url_format).lower()
 
     url = 'http://intranet.joh.cam.ac.uk/hall-menu-' + url_date
-
+    logging.info('Trying to find menu at URL: {}'.format(url))
     request = requests.get(url)
 
     data = []
