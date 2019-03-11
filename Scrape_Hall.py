@@ -60,18 +60,20 @@ def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
 
         # Get the menu from each row of the table
         courses = cols[1].find_all('p')
-        # TODO: remove/add back in bold text
         courses = list(filter(lambda x: len(x) > 0, map(lambda x : x.get_text(strip=True), courses)))
-        for i in range(len(courses)):
-            if courses[i].startswith('Vegetarian:'):
-                break
-        courses[i] = courses[i].replace('Vegetarian:', '')
-        menu = {'Starter_' + str(j): courses[j] for j in range(i)}
-        menu = OrderedDict(sorted(menu.items(), key=lambda t :t[0]))
-        menu['Vegetarian'] = courses[i]
-        menu['Main'] = courses[i + 1]
-        menu['Sides'] = courses[i + 2]
-        menu['Dessert'] = courses[i + 3]
+        if len(courses) == 1:
+            menu = {'Special': courses[0]}
+        else:
+            for i in range(len(courses)):
+                if courses[i].startswith('Vegetarian:'):
+                    break
+            courses[i] = courses[i].replace('Vegetarian:', '')
+            menu = {'Starter_' + str(j): courses[j] for j in range(i)}
+            menu = OrderedDict(sorted(menu.items(), key=lambda t :t[0]))
+            menu['Vegetarian'] = courses[i]
+            menu['Main'] = courses[i + 1]
+            menu['Sides'] = courses[i + 2]
+            menu['Dessert'] = courses[i + 3]
 
         for course in menu.keys():
             description = menu[course]
