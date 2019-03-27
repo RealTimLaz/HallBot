@@ -174,10 +174,12 @@ def run():
 
     menu = None
 
+    date_to_look = get_next_week()
+    if debug:
+        date_to_look = datetime.now()
+
     for format in ['wc-%d-%B', '%d-%b', '%d-%B', '%-d-%B', '%-d-%b', 'wc-%-d-%B']:
-        date_to_look = get_next_week()
-        if debug:
-            date_to_look = datetime.now()
+
         menu, date = get_menu(date=date_to_look, url_format=format)
         if debug and menu is None:
             menu, date = get_menu(date=date_to_look, url_format=format, week_offset=1)
@@ -185,6 +187,11 @@ def run():
             break
     else:
         logging.info('No menu for the next week was found')
+        if datetime.now() > date_to_look + timedelta(days=3):
+            logging.info('Skipping a week as there is no hall menu this week')
+            file = open('./HallBot/last_week', 'w')
+            file.write(date_to_look.strftime("%Y, %m, %d"))
+            file.close()
         return
 
     logging.info('Found menu')
