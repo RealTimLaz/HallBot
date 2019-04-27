@@ -199,7 +199,8 @@ def run():
         return
 
     logging.info('Found menu')
-    print(menu)
+    if debug:
+        print(menu)
     json_data = open('./HallBot/users.json').read()
     users = json.loads(json_data)
 
