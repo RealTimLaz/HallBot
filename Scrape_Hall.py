@@ -35,7 +35,9 @@ def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
 
     url = 'http://intranet.joh.cam.ac.uk/hall-menu-' + url_date
     logging.info('Trying to find menu at URL: {}'.format(url))
-    request = requests.get(url)
+    # John's tests the presence of this cookie
+    cookies = {'_ga': '123'}
+    request = requests.get(url, cookies=cookies)
 
     data = []
     html = BeautifulSoup(request.text, 'html.parser')
@@ -54,6 +56,8 @@ def get_menu(date=datetime.now(), week_offset=0, url_format='wc-%d-%B'):
 
         # Get the date from each row of the table
         date_col = cols[0].find_all('p')
+        if date_col[0].get_text(strip=True) == "":
+            continue
         day = date_col[0].get_text(strip=True)
         month = date_col[1].get_text(strip=True)
         current_row['date'] = day + ' ' + month
@@ -195,6 +199,7 @@ def run():
         return
 
     logging.info('Found menu')
+    print(menu)
     json_data = open('./HallBot/users.json').read()
     users = json.loads(json_data)
 
